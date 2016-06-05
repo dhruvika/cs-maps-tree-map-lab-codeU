@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import static java. lang. Math.*;
 
 /**
  * Implementation of a Map using a binary search tree.
@@ -63,6 +64,7 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	 */
 	private Node findNode(Object target) {
 		// some implementations can handle null as a key, but not this one
+		Node new_root = root;
 		if (target == null) {
             throw new NullPointerException();
 	    }
@@ -72,9 +74,38 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 		Comparable<? super K> k = (Comparable<? super K>) target;
 		
 		// the actual search
-        // TODO: Fill this in.
-        return null;
-	}
+		//System.out.println("LOOKING FOR");
+		//System.out.println(k);
+		
+        while (k.compareTo(new_root.key) != 0){
+        	//System.out.println("ROOT KEY "+ new_root.key );
+        	//System.out.println(k.compareTo(new_root.key));
+        	
+        	if (k.compareTo(new_root.key) > 0 && new_root.right != null) {
+        		//System.out.println("RIGHT: "+ new_root.right.key);
+        		new_root = new_root.right; }
+
+        	
+        	else if (k.compareTo(new_root.key) < 0 && new_root.left != null) {
+        		
+        		//System.out.println("LEFT: " + new_root.left.key);
+        		new_root = new_root.left; }
+        	
+        	else {
+        		//System.out.println("NULL LEFT: " + new_root.left.key);
+        		//System.out.println("NULL RIGHT: "+ new_root.right.key);
+        		return null;
+        			}
+        	
+        	} //System.out.println("FOUND " + new_root.key);
+        return new_root;
+        	}
+        	
+	
+	
+        	
+        
+	
 
 	/**
 	 * Compares two keys or two values, handling null correctly.
@@ -92,7 +123,13 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 
 	@Override
 	public boolean containsValue(Object target) {
-		return false;
+		Set<K> keys = keySet();
+		for (K key: keys){
+			Node node = findNode(key);
+			if(equals(node.value, target) == true){
+				return true;
+			}
+		} return false;
 	}
 
 	@Override
@@ -117,9 +154,20 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	@Override
 	public Set<K> keySet() {
 		Set<K> set = new LinkedHashSet<K>();
-        // TODO: Fill this in.
+        keySetHelper(root,set);
 		return set;
 	}
+	
+	public void keySetHelper(Node node,Set<K> set){
+		if (node == null){
+			return;
+		}
+		keySetHelper(node.left,set);
+		set.add(node.key);
+		keySetHelper(node.right, set);
+		
+	}
+	
 
 	@Override
 	public V put(K key, V value) {
@@ -135,8 +183,53 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	}
 
 	private V putHelper(Node node, K key, V value) {
-        // TODO: Fill this in.
-        return null;
+		//System.out.println(this.keySet());
+		//System.out.println("START WITH NODE" + root.key);
+        if (containsKey(key)== true){
+        	//System.out.println("FOUND KEY" + key);
+        	V old_value = get(key);
+        	Node change = findNode(key);
+        	change.value = value;
+        	return old_value;
+        }
+        else {
+        	//System.out.println("NO FOUND KEY" + key);
+        	Node cur_node = node;
+        	Comparable<? super K> k = (Comparable<? super K>) key;
+        	Node new_node = new Node(key,value);
+        	int i = 0;
+        	
+        	while ( i < 50){
+        		if(k.compareTo(cur_node.key) < 0){
+        			//System.out.println("Less so going left " + k.compareTo(cur_node.key));
+        			if(cur_node.left == null){
+        				//System.out.println("Found empty spot done");
+        				cur_node.left = new_node;
+        				size++;
+        				return null;
+        			}
+        			//System.out.println("Setting new cur_node to left");
+        			cur_node = cur_node.left;
+        			//System.out.println(cur_node.key);
+        			i++;
+        		} 
+        		if(k.compareTo(cur_node.key) > 0){
+        			//System.out.print("More so going right " + k.compareTo(cur_node.key));
+        			if(cur_node.right == null){
+        				//System.out.println("Found empty spot done");
+        				cur_node.right = new_node;
+        				size++ ;
+        				return null;
+        			}
+        			//System.out.println("Setting new cur_node right");
+        	
+        			cur_node = cur_node.right;
+        			//System.out.println(cur_node.key);
+        			i++;
+        		}
+        	}
+        } return null;
+        
 	}
 
 	@Override
